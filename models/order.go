@@ -4,17 +4,19 @@ import (
 	"time"
 )
 
-type FulfillmentType string 
+type FulfillmentType string
 
 const (
-	TypePickup		FulfillmentType = "pickup"
-	TypeDelivery	FulfillmentType = "delivery"
+	TypePickup   FulfillmentType = "pickup"
+	TypeDelivery FulfillmentType = "delivery"
 )
 
-type order struct {
-	ID			string			`json:"id"`
-	OrderType 	FulfillmentType	`json:"order_type"`
-	Status 		string			`json:"status"`
-	ETA			time.Time		`json:"eta"`
-	SceduledFor	time.Time		`json:"sceduled_for"`
+type Order struct {
+	ID          string          `json:"id"`
+	OrderType   FulfillmentType `json:"order_type"`
+	Status      string          `json:"status"`
+	ETA         time.Time       `json:"eta"`
+	SceduledFor time.Time       `json:"sceduled_for"`
+	Deadline	time.Time		`json:"deadline"`
+	Destination	string			`json:"destination"`
 }

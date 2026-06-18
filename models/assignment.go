@@ -1,6 +1,6 @@
 package models
 
 type Assignment struct {
-	Courier courier
-	Order 	order
+	Courier Courier
+	Order 	Order
 }
