@@ -1,7 +1,6 @@
 package geo
 
 import (
-	"fmt"
 	"github.com/mmcloughlin/geohash"
 )
 
@@ -10,6 +9,7 @@ func geoEncodeLatAndLog(latitude, longitude float64) string {
 	return geohash.EncodeWithPrecision(latitude,longitude,percision)
 }
 
+/* TODO: needs to implement */
 func geoDecodeLatAndLog(geoHash string) {
 	geoHash.DecodeIntWithPrecision()
 }

@@ -4,19 +4,17 @@ import (
 	"time"
 )
 
-type FulfillmentType string
-
-const (
-	TypePickup   FulfillmentType = "pickup"
-	TypeDelivery FulfillmentType = "delivery"
-)
+type Point struct {
+	Lat float64
+	Lng float64
+}
 
 type Order struct {
 	ID          string          `json:"id"`
-	OrderType   FulfillmentType `json:"order_type"`
 	Status      string          `json:"status"`
 	ETA         time.Time       `json:"eta"`
 	SceduledFor time.Time       `json:"sceduled_for"`
 	Deadline	time.Time		`json:"deadline"`
-	Destination	string			`json:"destination"`
+	Origin		Point			`json:"origin"`
+	Destination	Point			`json:"destination"`
 }

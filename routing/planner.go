@@ -3,7 +3,6 @@ package routing
 import (
 	"time"
 	"hyperlocal-delivery/models"
-	"hyperlocal-delivery/geo"
 )
 
 func SortListByETA(courier models.Courier) []models.Order {
@@ -23,7 +22,7 @@ func SortListByETA(courier models.Courier) []models.Order {
 	return courierList
 }
 
-func sortListBySlackTime(orders []models.Order) []models.Order {
+func SortListBySlackTime(orders []models.Order) []models.Order {
 	calculateSlackTime := func (order models.Order) time.Duration {
 		return order.Deadline.Sub(order.ETA)
 	}

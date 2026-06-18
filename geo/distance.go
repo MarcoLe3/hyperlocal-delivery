@@ -1,8 +1,8 @@
 package geo
 
 import (
-	"fmt"
 	"time"
+	"hyperlocal-delivery/models"
     "github.com/umahmood/haversine"
 )
 
@@ -12,9 +12,11 @@ const (
 	DrivingSpeed = 60.0
 )
 
-func GetDistance(origin, destination string) float64 {
-	mi, km := haversine.Distance(origin,destination)
-	return mi
+func GetDistance(origin, destination models.Point) float64 {
+	originCoord := haversine.Coord{Lat: origin.Lat, Lon: origin.Lng}
+	destinationCoord := haversine.Coord{Lat: destination.Lat, Lon: destination.Lng}
+	_, km := haversine.Distance(originCoord,destinationCoord)
+	return km
 }
 
 /*

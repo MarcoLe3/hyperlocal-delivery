@@ -1,6 +1,12 @@
 package models
 
+import (
+	"time"
+)
+
 type Assignment struct {
-	Courier Courier
-	Order 	Order
+	CourierID 	string
+	OrderIDS 	[]string
+	AssignedAt 	time.Time
+	Route		[]string		
 }
