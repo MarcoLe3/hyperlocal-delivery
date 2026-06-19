@@ -6,13 +6,14 @@ import (
 	"hyperlocal-delivery/geo"
 )
 
-func scorePath(courier models.Courier, order models.Order) (float64, float64)  {
+func ScorePath(courier models.Courier, order models.Order) (float64, float64)  {
 	routeBefore := routing.SortListByETA(courier)
 	timeBefore := calculateRouteCost(courier.Location, routeBefore)
 
-	courier.AddMoreOrder(order)
-	routeAfter := routing.SortListByETA(courier)
-	timeAfter := calculateRouteCost(courier.Location, routeAfter)
+	copyCourier := courier
+	copyCourier.AddMoreOrder(order)
+	routeAfter := routing.SortListByETA(copyCourier)
+	timeAfter := calculateRouteCost(copyCourier.Location, routeAfter)
 
 	timeDelta := timeAfter - timeBefore
 	distDelta := geo.GetDistance(courier.Location, order.Origin)

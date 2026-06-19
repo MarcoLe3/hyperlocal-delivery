@@ -8,5 +8,6 @@ type Assignment struct {
 	CourierID 	string
 	OrderIDS 	[]string
 	AssignedAt 	time.Time
-	Route		[]string		
+	Route		[]string
+	MDscore		float64		
 }
