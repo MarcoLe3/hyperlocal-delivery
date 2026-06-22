@@ -1,3 +1,5 @@
+github.com/carsonfeng/KMatch v0.0.0-20250410071527-12f897400def h1:6Yu1ZujSgBR4Kt2LsYWmxNKWKi9VgXFYQCVrQ5ff0ko=
+github.com/carsonfeng/KMatch v0.0.0-20250410071527-12f897400def/go.mod h1:+I4wfPo0psNE6ICWAS0doAymwdicmdFeSax8JeC0hkc=
 github.com/mmcloughlin/geohash v0.10.0 h1:9w1HchfDfdeLc+jFEf/04D27KP7E2QmpDu52wPbJWRE=
 github.com/mmcloughlin/geohash v0.10.0/go.mod h1:oNZxQo5yWJh0eMQEP/8hwQuVx9Z9tjwFUqcTB1SmG0c=
 github.com/umahmood/haversine v0.0.0-20151105152445-808ab04add26 h1:UFHFmFfixpmfRBcxuu+LA9l8MdURWVdVNUHxO5n1d2w=

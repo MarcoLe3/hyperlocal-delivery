@@ -6,6 +6,7 @@ type Courier struct {
 	OnHandOrders 	[]Order		`json:"on_hand_orders"`
 	Status 			string		`json:"status"`
 	MethodOfTravel	string		`json:"method_of_travel"`
+	ID				string		`json:"id"`
 }
 
 func (courier Courier) CanAcceptMoreOrders() bool {

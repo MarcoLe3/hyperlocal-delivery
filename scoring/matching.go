@@ -1,10 +1,17 @@
 package scoring
 
 import (
-	"hyperlocal-delivery/routing"
-	"hyperlocal-delivery/models"
 	"hyperlocal-delivery/geo"
+	"hyperlocal-delivery/models"
+	"hyperlocal-delivery/routing"
 )
+
+func ScoreMD(courier models.Courier, order models.Order, weight Weight) float64 {
+	timeDelta, distDelta := ScorePath(courier, order)
+	risk := CVarScore(courier, order)
+	default_score := weight.TimeWeight*timeDelta + weight.DistanceWeight*distDelta
+	return (1-risk) * default_score + risk
+}
 
 func ScorePath(courier models.Courier, order models.Order) (float64, float64)  {
 	routeBefore := routing.SortListByETA(courier)

@@ -1,11 +1,13 @@
 package dispatch
 
 import (
-	"time"
+	"context"
 	"hyperlocal-delivery/models"
+	"hyperlocal-delivery/scoring"
+	"time"
 )
 
-func Run(orderCh <- chan models.Order, courierCh <- chan models.Courier ) {
+func RunEngine(ctx context.Context, orderCh <- chan models.Order, courierPool *models.CourierPool, weight scoring.Weight) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
@@ -13,11 +15,17 @@ func Run(orderCh <- chan models.Order, courierCh <- chan models.Courier ) {
 		select {
 		case <-ticker.C:
 			orders := drainUnassignedOrders(orderCh)
-			couriers := drainAvaliableCouriers(courierCh)
-			dispatch.Assign()
+			couriers := courierPool.GetAvaliableCourier()
+			assignments := Assign(couriers, orders, weight)
+
+			for _, assignment := range assignments {
+				courierPool.AddOrderToCourier(assignment.CourierID, assignment.Order)
+				courierPool.UpdateCourierStatus(assignment.CourierID, "In Use")
+			}
+		case <-ctx.Done():
+			return
 		}
 	}
-
 }
 
 func drainUnassignedOrders(orderCh <-chan models.Order) []models.Order {
@@ -26,18 +34,6 @@ func drainUnassignedOrders(orderCh <-chan models.Order) []models.Order {
 		select {
 		case order := <-orderCh:
 			batch = append(batch,order)
-		default:
-			return batch
-		}
-	}
-}
-
-func drainAvaliableCouriers(courierCh <- chan models.Courier) []models.Courier {
-	var batch []models.Courier
-	for {
-		select {
-		case courier := <- courierCh:
-			batch = append(batch, courier)
 		default:
 			return batch
 		}

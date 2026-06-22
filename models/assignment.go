@@ -6,8 +6,7 @@ import (
 
 type Assignment struct {
 	CourierID 	string
-	OrderIDS 	[]string
+	Order 		Order
 	AssignedAt 	time.Time
-	Route		[]string
 	MDscore		float64		
 }

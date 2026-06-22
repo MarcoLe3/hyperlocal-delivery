@@ -10,7 +10,6 @@ func geoEncodeLatAndLog(coordinates models.Point) string {
 	return geohash.EncodeWithPrecision(coordinates.Lat,coordinates.Lng,percision)
 }
 
-/* TODO: needs to implement */
 func geoDecodeLatAndLog(geoHash string) (float64, float64) {
 	return geohash.Decode(geoHash)
 }
