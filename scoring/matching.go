@@ -1,6 +1,8 @@
 package scoring
 
 import (
+	"time"
+	"errors"
 	"hyperlocal-delivery/geo"
 	"hyperlocal-delivery/models"
 	"hyperlocal-delivery/routing"
@@ -9,18 +11,18 @@ import (
 func ScoreMD(courier models.Courier, order models.Order, weight Weight) float64 {
 	timeDelta, distDelta := ScorePath(courier, order)
 	risk := CVarScore(courier, order)
-	default_score := weight.TimeWeight*timeDelta + weight.DistanceWeight*distDelta
+	default_score := weight.TimeWeight*float64(timeDelta) + weight.DistanceWeight*float64(distDelta)
 	return (1-risk) * default_score + risk
 }
 
-func ScorePath(courier models.Courier, order models.Order) (float64, float64)  {
+func ScorePath(courier models.Courier, order models.Order) (time.Duration, float64)  {
 	routeBefore := routing.SortListByETA(courier)
-	timeBefore := calculateRouteCost(courier.Location, routeBefore)
+	timeBefore, _ := calculateRouteCost(courier.Location, courier.MethodOfTravel, routeBefore)
 
 	copyCourier := courier
 	copyCourier.AddMoreOrder(order)
 	routeAfter := routing.SortListByETA(copyCourier)
-	timeAfter := calculateRouteCost(copyCourier.Location, routeAfter)
+	timeAfter, _ := calculateRouteCost(copyCourier.Location, courier.MethodOfTravel, routeAfter)
 
 	timeDelta := timeAfter - timeBefore
 	distDelta := geo.GetDistance(courier.Location, order.Origin)
@@ -29,14 +31,22 @@ func ScorePath(courier models.Courier, order models.Order) (float64, float64)  {
 
 }
 
-func calculateRouteCost(start models.Point, orders []models.Order) float64 {
-	totalTime := 0.0
+func calculateRouteCost(start models.Point, method_of_travel string, orders []models.Order) (time.Duration, error) {
+	var total_time time.Duration
+	var ErrCalculateRouteCost = errors.New("error with caculating route cost")
 	currentPoint := start
+	speed, error := geo.GetSpeedOfTravel(method_of_travel)
+	if error != nil {
+		return -1.0, ErrCalculateRouteCost 
+	}
+
 	for _, order := range orders {
-		totalTime += geo.GetDistance(currentPoint, order.Origin)
-		totalTime += geo.GetDistance(order.Origin, order.Destination)
+		distance_curr_origin := geo.GetDistance(currentPoint, order.Origin)
+		total_time += geo.GetEstimatedTimeOfArrival(distance_curr_origin, speed)
+		distance_origin_destination := geo.GetDistance(order.Origin, order.Destination)
+		total_time += geo.GetEstimatedTimeOfArrival(distance_origin_destination, speed)
 		currentPoint = order.Destination
 	}
 
-	return totalTime
+	return total_time, nil
 }

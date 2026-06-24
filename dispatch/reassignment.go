@@ -8,14 +8,27 @@ import (
 	"time"
 )
 
-func RunAssignment(ctx context.Context, orderCh <- chan models.Order, weight scoring.Weight) {
+func RunReassignment(ctx context.Context, courierPool *models.CourierPool, orderPool *models.OrderPool, weight scoring.Weight) {
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-		
+			inProgressOrders := orderPool.GetInProgressOrder()
+
+			for orderIdx := range inProgressOrders {
+				order := inProgressOrders[orderIdx]
+				if orderIsLate(order) {
+					bestCourier := findBestCourierForOrder(order, courierPool, weight)
+					if bestCourier == nil {
+						continue
+					}
+					courierPool.RemoveOrderFromCourier(order.AssignedID, order.ID)
+					courierPool.AddOrderToCourier(bestCourier.ID, order)
+					orderPool.UpdateAssignedCourier(order.ID, bestCourier.ID)
+				} 
+			}
 		case <- ctx.Done():
 			return
 		}
@@ -28,18 +41,18 @@ func orderIsLate(order models.Order) bool {
 	return delay_time > threshold
 }
 
-func findBestCourierForOrder(order models.Order, courierPool models.CourierPool, weight scoring.Weight) *models.Courier {
-	avaliable_couriers := courierPool.GetAvaliableCourier()
+func findBestCourierForOrder(order models.Order, courierPool *models.CourierPool, weight scoring.Weight) *models.Courier {
+	avaliableCouriers := courierPool.GetAvaliableCourier()
 
-	best_MDscore := math.MaxFloat64
-	var best_courier *models.Courier
+	bestMDscore := math.MaxFloat64
+	var bestCourier *models.Courier
 
-	for courier := range avaliable_couriers {
-		courier_score := scoring.ScoreMD(avaliable_couriers[courier],order,weight)
-		if courier_score < best_MDscore {
-			best_MDscore = courier_score
-			best_courier = &avaliable_couriers[courier]
+	for courier := range avaliableCouriers {
+		courierScore := scoring.ScoreMD(avaliableCouriers[courier],order,weight)
+		if courierScore < bestMDscore {
+			bestMDscore = courierScore
+			bestCourier = &avaliableCouriers[courier]
 		}
 	}
-	return best_courier
+	return bestCourier
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"sync"
 	"errors"
+	"log"
 )
 
 var ErrCourierNotFound = errors.New("courier not found in the pool")
@@ -12,17 +13,18 @@ type CourierPool struct {
 	mu   sync.Mutex
 }
 
-func CreateNewPool() *CourierPool {
+func CreateNewCourierPool() *CourierPool {
 	return &CourierPool{
 		Pool: make(map[string]*Courier),
 	}
 }
 
-func (c *CourierPool) addCourier(id string, courier Courier) {
+func (c *CourierPool) AddCourierToPool(id string, courier Courier) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	c.Pool[id] = &courier
+	log.Println("Added Courier: " + courier.ID)
 }
 
 func (c *CourierPool) GetAvaliableCourier() []Courier {
@@ -36,6 +38,20 @@ func (c *CourierPool) GetAvaliableCourier() []Courier {
 	}
 
 	return avaliable_couriers
+}
+
+func (c *CourierPool) RemoveOrderFromCourier(id, order_id string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	courier := c.Pool[id]
+
+	if courier == nil {
+		return ErrCourierNotFound
+	}
+
+	courier.RemoveOrder(order_id)
+	return nil
 }
 
 func (c *CourierPool) AddOrderToCourier(id string, order Order) error {

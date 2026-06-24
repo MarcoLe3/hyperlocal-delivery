@@ -1,9 +1,11 @@
 package geo
 
 import (
-	"time"
+	"errors"
 	"hyperlocal-delivery/models"
-    "github.com/umahmood/haversine"
+	"time"
+
+	"github.com/umahmood/haversine"
 )
 
 const (
@@ -19,11 +21,25 @@ func GetDistance(origin, destination models.Point) float64 {
 	return km
 }
 
+func GetSpeedOfTravel(method_of_travel string) (float64, error) {
+	var ErrNotValidMethod = errors.New("Not a valid method of travel")
+	switch method_of_travel {
+	case "car":
+		return DrivingSpeed, nil
+	case "bike":
+		return BikingSpeed, nil
+	case "walk":
+		return WalkingSpeed, nil
+	default:
+		return -1.0, ErrNotValidMethod
+	}
+}
+
 /*
 	Probably switch to an api to get routes
  */
-func GetEstimatedTimeOfArrival(speed, miles float64) time.Duration {
-	hours := miles/speed
+func GetEstimatedTimeOfArrival(km, speed float64) time.Duration {
+	hours := km/speed
 	return time.Duration(hours * float64(time.Hour))
 }
 

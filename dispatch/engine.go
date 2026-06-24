@@ -5,16 +5,19 @@ import (
 	"hyperlocal-delivery/models"
 	"hyperlocal-delivery/scoring"
 	"time"
+	"log"
 )
 
-func RunEngine(ctx context.Context, orderCh <- chan models.Order, courierPool *models.CourierPool, weight scoring.Weight) {
+func RunEngine(ctx context.Context, courierPool *models.CourierPool, orderPool *models.OrderPool, weight scoring.Weight) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
+	log.Println("Engine is starting")
+	
 	for {
 		select {
 		case <-ticker.C:
-			orders := drainUnassignedOrders(orderCh)
+			orders := orderPool.GetPendingOrders()
 			couriers := courierPool.GetAvaliableCourier()
 			assignments := Assign(couriers, orders, weight)
 
@@ -24,18 +27,6 @@ func RunEngine(ctx context.Context, orderCh <- chan models.Order, courierPool *m
 			}
 		case <-ctx.Done():
 			return
-		}
-	}
-}
-
-func drainUnassignedOrders(orderCh <-chan models.Order) []models.Order {
-	var batch []models.Order
-	for {
-		select {
-		case order := <-orderCh:
-			batch = append(batch,order)
-		default:
-			return batch
 		}
 	}
 }
